@@ -64,6 +64,6 @@ defmodule Sitemapper.SitemapGenerator do
         XmlBuilder.element(k, v)
       end)
 
-    XmlBuilder.element(:url, elements)
+    XmlBuilder.element(:url, elements ++ Map.get(url, :extended, []))
   end
 end

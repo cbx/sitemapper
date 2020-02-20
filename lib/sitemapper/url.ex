@@ -3,7 +3,7 @@ defmodule Sitemapper.URL do
   Represents a URL for inclusion in a Sitemap.
   """
   @enforce_keys [:loc]
-  defstruct [:loc, :lastmod, :changefreq, :priority]
+  defstruct [:loc, :lastmod, :changefreq, :priority, :extended]
 
   @type changefreq :: :always | :hourly | :daily | :weekly | :monthly | :yearly | :never
 
@@ -11,6 +11,7 @@ defmodule Sitemapper.URL do
           loc: String.t(),
           lastmod: Date.t() | DateTime.t() | NaiveDateTime.t() | nil,
           changefreq: changefreq | nil,
-          priority: float | nil
+          priority: float | nil,
+          extended: List.t() | nil
         }
 end
