@@ -4,10 +4,11 @@ defmodule Sitemapper.S3Store do
   def write(filename, body, config) do
     bucket = Keyword.fetch!(config, :bucket)
     region = Keyword.get(config, :region, "us-east-1")
+    cache_control = Keyword.get(config, :cache_control, "must-revalidate")
 
     props = [
       {:content_type, content_type(filename)},
-      {:cache_control, "must-revalidate"},
+      {:cache_control, cache_control},
       {:acl, :public_read}
     ]
 
