@@ -14,8 +14,17 @@ defmodule Sitemapper.SitemapGenerator do
   @end_length String.length(@urlset_end) + @line_sep_length
   @max_length_offset @max_length - @end_length
 
-  def new() do
-    body = [@dec, @line_sep, @urlset_start, @line_sep]
+  def new(xmlns \\ nil) do
+    urlset_start =
+      if xmlns do
+        XmlBuilder.element(:urlset, xmlns)
+        |> XmlBuilder.generate()
+        |> String.replace_trailing("/>", ">")
+      else
+        @urlset_start
+      end
+
+    body = [@dec, @line_sep, urlset_start, @line_sep]
     length = IO.iodata_length(body)
     %File{count: 0, length: length, body: body}
   end

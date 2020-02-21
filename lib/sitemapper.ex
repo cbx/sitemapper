@@ -28,10 +28,11 @@ defmodule Sitemapper do
     sitemap_url = Keyword.fetch!(opts, :sitemap_url)
     gzip_enabled = Keyword.get(opts, :gzip, true)
     name = Keyword.get(opts, :name)
+    xmlns = Keyword.get(opts, :xmlns)
 
     enum
     |> Stream.concat([:end])
-    |> Stream.transform(nil, &reduce_url_to_sitemap/2)
+    |> Stream.transform(nil, &reduce_url_to_sitemap(&1, &2, xmlns))
     |> Stream.transform(1, &reduce_file_to_name_and_body(&1, &2, name, gzip_enabled))
     |> Stream.concat([:end])
     |> Stream.transform(nil, &reduce_to_index(&1, &2, sitemap_url, name, gzip_enabled))
@@ -83,24 +84,24 @@ defmodule Sitemapper do
     end)
   end
 
-  defp reduce_url_to_sitemap(:end, nil) do
+  defp reduce_url_to_sitemap(:end, nil, _xmlns) do
     {[], nil}
   end
 
-  defp reduce_url_to_sitemap(:end, progress) do
+  defp reduce_url_to_sitemap(:end, progress, _xmlns) do
     done = SitemapGenerator.finalize(progress)
     {[done], nil}
   end
 
-  defp reduce_url_to_sitemap(url, nil) do
-    reduce_url_to_sitemap(url, SitemapGenerator.new())
+  defp reduce_url_to_sitemap(url, nil, xmlns) do
+    reduce_url_to_sitemap(url, SitemapGenerator.new(xmlns), xmlns)
   end
 
-  defp reduce_url_to_sitemap(url, progress) do
+  defp reduce_url_to_sitemap(url, progress, xmlns) do
     case SitemapGenerator.add_url(progress, url) do
       {:error, reason} when reason in [:over_length, :over_count] ->
         done = SitemapGenerator.finalize(progress)
-        next = SitemapGenerator.new() |> SitemapGenerator.add_url(url)
+        next = SitemapGenerator.new(xmlns) |> SitemapGenerator.add_url(url)
         {[done], next}
 
       new_progress ->
