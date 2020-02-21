@@ -3,6 +3,7 @@ defmodule Sitemapper.S3Store do
 
   def write(filename, body, config) do
     bucket = Keyword.fetch!(config, :bucket)
+    region = Keyword.get(config, :region, "us-east-1")
 
     props = [
       {:content_type, content_type(filename)},
@@ -11,7 +12,7 @@ defmodule Sitemapper.S3Store do
     ]
 
     ExAws.S3.put_object(bucket, filename, body, props)
-    |> ExAws.request!()
+    |> ExAws.request!(region: region)
 
     :ok
   end
